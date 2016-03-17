@@ -6,13 +6,19 @@ public class Helper {
 
     public Map createMap()
     {
-        Map<Object, Object> map = new HashMap<Object,Object>();
+        Map<Object, Object> map = new TreeMap<Object,Object>();
         return map;
     }
 
-    public void addObjects(HashMap map,Object key, Object value)
+    public void addObject(TreeMap map,Object key, Object value)
     {
         map.put(key, value);
+
+    }
+
+    public void removeObject(TreeMap map, Object key)
+    {
+        map.remove(key);
 
     }
 }
