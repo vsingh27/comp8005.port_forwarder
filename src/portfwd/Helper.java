@@ -1,6 +1,9 @@
 package portfwd; /**
  * Created by Rizwan Ahmed on 15/03/2016.
  */
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.channels.ServerSocketChannel;
 import java.util.*;
 public class Helper {
 
