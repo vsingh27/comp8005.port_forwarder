@@ -21,4 +21,14 @@ public class Helper {
         map.remove(key);
 
     }
+    
+    protected ServerSocketChannel makeNonBlockingServerSocketChannnel(InetSocketAddress address) throws IOException
+    {
+
+            //Opening up a server Socekt Channel
+            ServerSocketChannel ssChannel = ServerSocketChannel.open();
+            //Set to non-blocking
+            ssChannel.configureBlocking(false);
+        return ssChannel;
+    }
 }
