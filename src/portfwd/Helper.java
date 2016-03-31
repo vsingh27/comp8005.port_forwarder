@@ -7,27 +7,22 @@ import java.net.SocketException;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class Helper
 {
-    /**
-     * @return
-     */
-    protected Map createMap()
-    {
-        Map<InetSocketAddress, InetSocketAddress> map = new TreeMap<InetSocketAddress, InetSocketAddress>();
-        return map;
-    }
 
     /**
      * @param map
      * @param key
      * @param value
      */
-    protected void addHost(TreeMap map, InetSocketAddress key, InetSocketAddress value)
+    protected void addHost(HashMap map, InetSocketAddress key, InetSocketAddress value)
     {
+
         map.put(key, value);
     }
 
@@ -35,7 +30,7 @@ public class Helper
      * @param map
      * @param key
      */
-    protected void removeHost(TreeMap map, InetSocketAddress key)
+    protected void removeHost(HashMap map, InetSocketAddress key)
     {
         map.remove(key);
     }
