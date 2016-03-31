@@ -1,13 +1,13 @@
 package portfwd;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 //This is the intial commit
 public class Controller {
@@ -19,6 +19,8 @@ public class Controller {
     private TextField destIP;
     @FXML
     private TextField destPort;
+    @FXML
+    private TableView<ForwardPair> PairTable;
 
 
     protected InetSocketAddress tempSource;
@@ -26,6 +28,7 @@ public class Controller {
 
     Helper helper = new Helper();
     private HashMap<InetSocketAddress,InetSocketAddress> HostPairs = new HashMap<InetSocketAddress, InetSocketAddress>();
+
 
     private boolean isSourceInputValid()
     {
@@ -86,8 +89,7 @@ public class Controller {
                 InetSocketAddress prntSrc = (InetSocketAddress) pair.getKey();
                 InetSocketAddress prntDest = (InetSocketAddress) pair.getValue();
 
-                System.out.println(prntSrc.getHostName() + "  " + prntSrc.getPort());
-                System.out.println(prntDest.getHostName() + "  " + prntDest.getPort());
+                System.out.println(prntSrc.getHostName() + "  " + prntSrc.getPort() + "  " + prntDest.getHostName() + "  " + prntDest.getPort());
 
             }
 
@@ -98,5 +100,39 @@ public class Controller {
             System.out.println("Invalid input!");
         }
 
+        srcIP.clear();
+        srcPort.clear();
+        destIP.clear();
+        destPort.clear();
+
+        updateTable();
+
     }
+
+    public void updateTable()
+    {
+        ObservableList<ForwardPair> data = FXCollections.observableArrayList();
+        ForwardPair temp = new ForwardPair();
+
+        Iterator iter = HostPairs.entrySet().iterator();
+
+        while (iter.hasNext())
+        {
+            Map.Entry pair = (Map.Entry)iter.next();
+            InetSocketAddress tmpSrc = (InetSocketAddress) pair.getKey();
+            InetSocketAddress tmpDest = (InetSocketAddress) pair.getValue();
+
+            temp.setSrcIP(tmpSrc.getHostName());
+            temp.setSrcPort(tmpSrc.getPort());
+            temp.setDestIP(tmpDest.getHostName());
+            temp.setDestPort(tmpDest.getPort());
+
+            data.add(temp);
+
+        }
+
+        PairTable.setItems(data);
+
+    }
+
 }

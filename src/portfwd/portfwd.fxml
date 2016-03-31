@@ -55,7 +55,7 @@
             </VBox>
          </top>
          <left>
-            <PieChart BorderPane.alignment="CENTER" />
+            <PieChart prefHeight="400.0" prefWidth="235.0" BorderPane.alignment="CENTER" />
          </left>
          <bottom>
             <HBox BorderPane.alignment="CENTER">
@@ -67,7 +67,17 @@
          </bottom>
          <right>
             <TextFlow BorderPane.alignment="CENTER" />
-         </right></BorderPane>
+         </right>
+         <center>
+            <TableView fx:id="PairTable" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="235.0" prefWidth="396.0" BorderPane.alignment="BOTTOM_RIGHT">
+              <columns>
+                <TableColumn prefWidth="138.0" text="Src IP" />
+                <TableColumn prefWidth="51.0" text="Src Port" />
+                  <TableColumn prefWidth="148.0" text="Dest IP" />
+                  <TableColumn prefWidth="58.0" text="Dest Port" />
+              </columns>
+            </TableView>
+         </center></BorderPane>
    </children>
    <columnConstraints>
       <ColumnConstraints />
