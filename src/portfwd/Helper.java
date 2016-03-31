@@ -17,7 +17,7 @@ public class Helper
      */
     protected Map createMap()
     {
-        Map<Object, Object> map = new TreeMap<Object, Object>();
+        Map<HostAddress, HostAddress> map = new TreeMap<HostAddress, HostAddress>();
         return map;
     }
 
@@ -26,7 +26,7 @@ public class Helper
      * @param key
      * @param value
      */
-    protected void addObject(TreeMap map, Object key, Object value)
+    protected void addHost(TreeMap map, HostAddress key, HostAddress value)
     {
         map.put(key, value);
     }
@@ -35,7 +35,7 @@ public class Helper
      * @param map
      * @param key
      */
-    protected void removeObject(TreeMap map, Object key)
+    protected void removeHost(TreeMap map, HostAddress key)
     {
         map.remove(key);
     }
