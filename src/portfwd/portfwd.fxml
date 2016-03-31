@@ -54,14 +54,10 @@
                </children>
             </VBox>
          </top>
-         <left>
-            <PieChart prefHeight="400.0" prefWidth="235.0" BorderPane.alignment="CENTER" />
-         </left>
          <bottom>
-            <HBox BorderPane.alignment="CENTER">
+            <HBox alignment="CENTER" BorderPane.alignment="CENTER">
                <children>
-                  <Label text="Label" />
-                  <ProgressBar prefWidth="200.0" progress="0.0" />
+                  <Button alignment="CENTER" mnemonicParsing="false" onAction="#StartButtonClicked" text="Start" />
                </children>
             </HBox>
          </bottom>
@@ -71,10 +67,10 @@
          <center>
             <TableView fx:id="PairTable" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="235.0" prefWidth="396.0" BorderPane.alignment="BOTTOM_RIGHT">
               <columns>
-                <TableColumn prefWidth="138.0" text="Src IP" />
-                <TableColumn prefWidth="51.0" text="Src Port" />
-                  <TableColumn prefWidth="148.0" text="Dest IP" />
-                  <TableColumn prefWidth="58.0" text="Dest Port" />
+                <TableColumn fx:id="SourceHostname" prefWidth="138.0" text="Src IP" />
+                <TableColumn fx:id="SourcePortNum" prefWidth="51.0" text="Src Port" />
+                  <TableColumn fx:id="DestHostname" prefWidth="148.0" text="Dest IP" />
+                  <TableColumn fx:id="DestPortNum" prefWidth="58.0" text="Dest Port" />
               </columns>
             </TableView>
          </center></BorderPane>

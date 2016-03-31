@@ -3,8 +3,10 @@ package portfwd;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.util.Pair;
 
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -20,7 +22,15 @@ public class Controller {
     @FXML
     private TextField destPort;
     @FXML
-    private TableView<ForwardPair> PairTable;
+    private TableView<Pair<InetSocketAddress,InetSocketAddress>> PairTable;
+    @FXML
+    private TableColumn SourceHostname;
+    @FXML
+    private TableColumn SourcePortNum;
+    @FXML
+    private TableColumn DestHostname;
+    @FXML
+    private TableColumn DestPortNum;
 
 
     protected InetSocketAddress tempSource;
@@ -111,27 +121,42 @@ public class Controller {
 
     public void updateTable()
     {
-        ObservableList<ForwardPair> data = FXCollections.observableArrayList();
-        ForwardPair temp = new ForwardPair();
+        PairTable.setEditable(true);
+
+        ObservableList<Pair<InetSocketAddress,InetSocketAddress>> data1 = FXCollections.observableArrayList();
+
+
+        //ObservableList<ForwardPair> data = FXCollections.observableArrayList();
+        //ForwardPair temp = new ForwardPair();
 
         Iterator iter = HostPairs.entrySet().iterator();
 
         while (iter.hasNext())
         {
             Map.Entry pair = (Map.Entry)iter.next();
+
             InetSocketAddress tmpSrc = (InetSocketAddress) pair.getKey();
             InetSocketAddress tmpDest = (InetSocketAddress) pair.getValue();
 
-            temp.setSrcIP(tmpSrc.getHostName());
-            temp.setSrcPort(tmpSrc.getPort());
-            temp.setDestIP(tmpDest.getHostName());
-            temp.setDestPort(tmpDest.getPort());
+            Pair dataVal = new Pair(tmpSrc,tmpDest);
 
-            data.add(temp);
+            data1.add(dataVal);
+
+            //temp.setSrcIP(tmpSrc.getHostName());
+            //temp.setSrcPort(tmpSrc.getPort());
+            //temp.setDestIP(tmpDest.getHostName());
+            //temp.setDestPort(tmpDest.getPort());
+
+            //data.add(temp);
 
         }
 
-        PairTable.setItems(data);
+        PairTable.setItems(data1);
+
+    }
+
+    public void StartButtonClicked()
+    {
 
     }
 
