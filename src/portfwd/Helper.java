@@ -17,7 +17,7 @@ public class Helper
      */
     protected Map createMap()
     {
-        Map<HostAddress, HostAddress> map = new TreeMap<HostAddress, HostAddress>();
+        Map<InetSocketAddress, InetSocketAddress> map = new TreeMap<InetSocketAddress, InetSocketAddress>();
         return map;
     }
 
@@ -26,7 +26,7 @@ public class Helper
      * @param key
      * @param value
      */
-    protected void addHost(TreeMap map, HostAddress key, HostAddress value)
+    protected void addHost(TreeMap map, InetSocketAddress key, InetSocketAddress value)
     {
         map.put(key, value);
     }
@@ -35,7 +35,7 @@ public class Helper
      * @param map
      * @param key
      */
-    protected void removeHost(TreeMap map, HostAddress key)
+    protected void removeHost(TreeMap map, InetSocketAddress key)
     {
         map.remove(key);
     }

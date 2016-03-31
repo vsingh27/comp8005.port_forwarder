@@ -41,11 +41,11 @@
                   </MenuBar>
                   <HBox>
                      <children>
-                        <TextField promptText="Source IP" />
-                        <TextField layoutX="10.0" layoutY="10.0" promptText="Source Port" />
-                        <Button mnemonicParsing="false" text="Route" />
-                        <TextField layoutX="159.0" layoutY="10.0" promptText="Destination IP" text="Destination Port" />
-                        <TextField />
+                        <TextField fx:id="srcIP" promptText="Source IP" />
+                        <TextField fx:id="srcPort" layoutX="10.0" layoutY="10.0" promptText="Source Port" />
+                        <Button mnemonicParsing="false" onAction="#routeButtonClicked" text="Route" />
+                        <TextField fx:id="destIP" layoutX="159.0" layoutY="10.0" promptText="Destination IP" />
+                        <TextField fx:id="destPort" promptText="Destination Port" />
                      </children>
                      <VBox.margin>
                         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
