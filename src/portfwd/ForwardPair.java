@@ -9,6 +9,14 @@ public class ForwardPair {
     public String destIP;
     public int destPort;
 
+    public ForwardPair(String srcName, int srcP, String destName, int destP)
+    {
+        this.srcIP = srcName;
+        this.srcPort = srcP;
+        this.destIP = destName;
+        this.destPort = destP;
+    }
+
     public String getSrcIP() {
         return srcIP;
     }

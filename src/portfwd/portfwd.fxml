@@ -65,14 +65,7 @@
             <TextFlow BorderPane.alignment="CENTER" />
          </right>
          <center>
-            <TableView fx:id="PairTable" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="235.0" prefWidth="396.0" BorderPane.alignment="BOTTOM_RIGHT">
-              <columns>
-                <TableColumn fx:id="SourceHostname" prefWidth="138.0" text="Src IP" />
-                <TableColumn fx:id="SourcePortNum" prefWidth="51.0" text="Src Port" />
-                  <TableColumn fx:id="DestHostname" prefWidth="148.0" text="Dest IP" />
-                  <TableColumn fx:id="DestPortNum" prefWidth="58.0" text="Dest Port" />
-              </columns>
-            </TableView>
+            <TableView fx:id="PairTable" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="235.0" prefWidth="358.0" BorderPane.alignment="BOTTOM_RIGHT" />
          </center></BorderPane>
    </children>
    <columnConstraints>

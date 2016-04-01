@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Pair;
 
 import java.net.InetSocketAddress;
@@ -22,22 +23,18 @@ public class Controller {
     @FXML
     private TextField destPort;
     @FXML
-    private TableView<Pair<InetSocketAddress,InetSocketAddress>> PairTable;
-    @FXML
-    private TableColumn SourceHostname;
-    @FXML
-    private TableColumn SourcePortNum;
-    @FXML
-    private TableColumn DestHostname;
-    @FXML
-    private TableColumn DestPortNum;
-
-
+    private TableView<ForwardPair> PairTable;
     protected InetSocketAddress tempSource;
     protected InetSocketAddress tempDest;
 
     Helper helper = new Helper();
     private HashMap<InetSocketAddress,InetSocketAddress> HostPairs = new HashMap<InetSocketAddress, InetSocketAddress>();
+
+    private ObservableList<ForwardPair> TableData = FXCollections.observableArrayList();
+    private ForwardPair tempFPO;
+
+    private boolean isTableMade = false;
+
 
 
     private boolean isSourceInputValid()
@@ -89,6 +86,9 @@ public class Controller {
             tempSource = new InetSocketAddress(srcIP.getText(), Integer.parseInt(srcPort.getText()));
             tempDest = new InetSocketAddress(destIP.getText(), Integer.parseInt(destPort.getText()));
 
+            tempFPO = new ForwardPair(tempSource.getHostName(),tempSource.getPort(),tempDest.getHostName(),tempDest.getPort());
+            TableData.add(tempFPO);
+
             helper.addHost(HostPairs,tempSource,tempDest);
 
             Iterator it = HostPairs.entrySet().iterator();
@@ -121,37 +121,26 @@ public class Controller {
 
     public void updateTable()
     {
-        PairTable.setEditable(true);
+        if (!isTableMade){
+            PairTable.setEditable(true);
+            TableColumn SourceHostname = new TableColumn("Src IP");
+            SourceHostname.setCellValueFactory(new PropertyValueFactory<ForwardPair,String>("srcIP"));
+            TableColumn SourcePortNum = new TableColumn("Src Port");
+            SourcePortNum.setCellValueFactory(new PropertyValueFactory<ForwardPair,Integer>("srcPort"));
 
-        ObservableList<Pair<InetSocketAddress,InetSocketAddress>> data1 = FXCollections.observableArrayList();
+            TableColumn DestHostname = new TableColumn("Dest IP");
+            DestHostname.setCellValueFactory(new PropertyValueFactory<ForwardPair,String>("destIP"));
+            TableColumn DestPortNum = new TableColumn("Dest Port");
+            DestPortNum.setCellValueFactory(new PropertyValueFactory<ForwardPair,Integer>("destPort"));
 
 
-        //ObservableList<ForwardPair> data = FXCollections.observableArrayList();
-        //ForwardPair temp = new ForwardPair();
-
-        Iterator iter = HostPairs.entrySet().iterator();
-
-        while (iter.hasNext())
-        {
-            Map.Entry pair = (Map.Entry)iter.next();
-
-            InetSocketAddress tmpSrc = (InetSocketAddress) pair.getKey();
-            InetSocketAddress tmpDest = (InetSocketAddress) pair.getValue();
-
-            Pair dataVal = new Pair(tmpSrc,tmpDest);
-
-            data1.add(dataVal);
-
-            //temp.setSrcIP(tmpSrc.getHostName());
-            //temp.setSrcPort(tmpSrc.getPort());
-            //temp.setDestIP(tmpDest.getHostName());
-            //temp.setDestPort(tmpDest.getPort());
-
-            //data.add(temp);
-
+            PairTable.setItems(TableData);
+            PairTable.getColumns().addAll(SourceHostname,SourcePortNum,DestHostname,DestPortNum);
+            isTableMade = true;
         }
 
-        PairTable.setItems(data1);
+        else
+            PairTable.setItems(TableData);
 
     }
 
