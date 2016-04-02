@@ -66,7 +66,10 @@
          </right>
          <center>
             <TableView fx:id="PairTable" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="235.0" prefWidth="358.0" BorderPane.alignment="BOTTOM_RIGHT" />
-         </center></BorderPane>
+         </center>
+         <left>
+            <TextArea fx:id="appConsole" prefHeight="235.0" prefWidth="298.0" style="-fx-background-color: #000000;" stylesheets="@../css/myStyle.css" text="Welcome to the Port Forwarder!" BorderPane.alignment="CENTER" />
+         </left></BorderPane>
    </children>
    <columnConstraints>
       <ColumnConstraints />

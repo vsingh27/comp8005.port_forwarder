@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Pair;
@@ -24,6 +25,11 @@ public class Controller {
     private TextField destPort;
     @FXML
     private TableView<ForwardPair> PairTable;
+    @FXML
+    private TextArea appConsole;
+
+
+
     protected InetSocketAddress tempSource;
     protected InetSocketAddress tempDest;
 
@@ -89,6 +95,9 @@ public class Controller {
             tempFPO = new ForwardPair(tempSource.getHostName(),tempSource.getPort(),tempDest.getHostName(),tempDest.getPort());
             TableData.add(tempFPO);
 
+            appConsole.appendText("\n Valid pair added!");
+
+
             helper.addHost(HostPairs,tempSource,tempDest);
 
             Iterator it = HostPairs.entrySet().iterator();
@@ -108,6 +117,7 @@ public class Controller {
         else
         {
             System.out.println("Invalid input!");
+            appConsole.appendText("\nInvalid input!");
         }
 
         srcIP.clear();
@@ -146,6 +156,7 @@ public class Controller {
 
     public void StartButtonClicked()
     {
+        appConsole.appendText("\n Start button clicked!");
 
     }
 
