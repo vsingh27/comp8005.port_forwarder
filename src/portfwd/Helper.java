@@ -20,7 +20,7 @@ public class Helper
      * @param key
      * @param value
      */
-    protected void addHost(HashMap map, InetSocketAddress key, InetSocketAddress value)
+    protected void addHost(HashMap map, int key, InetSocketAddress value)
     {
 
         map.put(key, value);
@@ -30,7 +30,7 @@ public class Helper
      * @param map
      * @param key
      */
-    protected void removeHost(HashMap map, InetSocketAddress key)
+    protected void removeHost(HashMap map, int key)
     {
         map.remove(key);
     }

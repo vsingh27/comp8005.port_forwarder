@@ -41,7 +41,6 @@
                   </MenuBar>
                   <HBox>
                      <children>
-                        <TextField fx:id="srcIP" promptText="Source IP" />
                         <TextField fx:id="srcPort" layoutX="10.0" layoutY="10.0" promptText="Source Port" />
                         <Button mnemonicParsing="false" onAction="#routeButtonClicked" text="Route" />
                         <TextField fx:id="destIP" layoutX="159.0" layoutY="10.0" promptText="Destination IP" />

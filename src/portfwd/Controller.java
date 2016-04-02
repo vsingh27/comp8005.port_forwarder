@@ -16,8 +16,6 @@ import java.util.*;
 //This is the intial commit
 public class Controller {
     @FXML
-    private TextField srcIP;
-    @FXML
     private TextField srcPort;
     @FXML
     private TextField destIP;
@@ -30,11 +28,11 @@ public class Controller {
 
 
 
-    protected InetSocketAddress tempSource;
+    protected int tempSrcPort;
     protected InetSocketAddress tempDest;
 
     Helper helper = new Helper();
-    private HashMap<InetSocketAddress,InetSocketAddress> HostPairs = new HashMap<InetSocketAddress, InetSocketAddress>();
+    private HashMap<Integer ,InetSocketAddress> HostPairs = new HashMap<Integer, InetSocketAddress>();
 
     private ObservableList<ForwardPair> TableData = FXCollections.observableArrayList();
     private ForwardPair tempFPO;
@@ -45,21 +43,16 @@ public class Controller {
 
     private boolean isSourceInputValid()
     {
-        boolean b = false;
-        if(!(srcIP.getText() == null || srcIP.getText().length() == 0) && !(srcPort.getText() == null || srcPort.getText().length() == 0))
+        if(!(srcPort.getText() == null || srcPort.getText().length() == 0)) {
+
+            return true;
+
+        }
+        else
         {
-            try
-            {
-                InetSocketAddress test = new InetSocketAddress(srcIP.getText(), Integer.parseInt(srcPort.getText()));
-                b = true;
-
-            } catch(Exception e){
+            return false;
 
         }
-
-        }
-
-        return b;
     }
 
     private boolean isDestInputValid()
@@ -89,26 +82,27 @@ public class Controller {
 
         if(isSourceInputValid() == true && isDestInputValid() == true)
         {
-            tempSource = new InetSocketAddress(srcIP.getText(), Integer.parseInt(srcPort.getText()));
+            tempSrcPort = Integer.parseInt(srcPort.getText());
             tempDest = new InetSocketAddress(destIP.getText(), Integer.parseInt(destPort.getText()));
 
-            tempFPO = new ForwardPair(tempSource.getHostName(),tempSource.getPort(),tempDest.getHostName(),tempDest.getPort());
+            tempFPO = new ForwardPair(tempSrcPort,tempDest.getHostName(),tempDest.getPort());
             TableData.add(tempFPO);
 
             appConsole.appendText("\n Valid pair added!");
 
 
-            helper.addHost(HostPairs,tempSource,tempDest);
+            helper.addHost(HostPairs,tempSrcPort,tempDest);
 
             Iterator it = HostPairs.entrySet().iterator();
 
             while (it.hasNext())
             {
                 Map.Entry pair = (Map.Entry)it.next();
-                InetSocketAddress prntSrc = (InetSocketAddress) pair.getKey();
+
+                int prntSrc = (Integer) pair.getKey();
                 InetSocketAddress prntDest = (InetSocketAddress) pair.getValue();
 
-                System.out.println(prntSrc.getHostName() + "  " + prntSrc.getPort() + "  " + prntDest.getHostName() + "  " + prntDest.getPort());
+                System.out.println("Forwarder's port: " + prntSrc + "  " + prntDest.getHostName() + "  " + prntDest.getPort());
 
             }
 
@@ -120,7 +114,6 @@ public class Controller {
             appConsole.appendText("\nInvalid input!");
         }
 
-        srcIP.clear();
         srcPort.clear();
         destIP.clear();
         destPort.clear();
@@ -133,8 +126,6 @@ public class Controller {
     {
         if (!isTableMade){
             PairTable.setEditable(true);
-            TableColumn SourceHostname = new TableColumn("Src IP");
-            SourceHostname.setCellValueFactory(new PropertyValueFactory<ForwardPair,String>("srcIP"));
             TableColumn SourcePortNum = new TableColumn("Src Port");
             SourcePortNum.setCellValueFactory(new PropertyValueFactory<ForwardPair,Integer>("srcPort"));
 
@@ -145,7 +136,7 @@ public class Controller {
 
 
             PairTable.setItems(TableData);
-            PairTable.getColumns().addAll(SourceHostname,SourcePortNum,DestHostname,DestPortNum);
+            PairTable.getColumns().addAll(SourcePortNum,DestHostname,DestPortNum);
             isTableMade = true;
         }
 

@@ -4,25 +4,15 @@ package portfwd;
  * Created by Rizwan Ahmed on 2016-03-30.
  */
 public class ForwardPair {
-    public String srcIP;
     public int srcPort;
     public String destIP;
     public int destPort;
 
-    public ForwardPair(String srcName, int srcP, String destName, int destP)
+    public ForwardPair(int srcP, String destName, int destP)
     {
-        this.srcIP = srcName;
         this.srcPort = srcP;
         this.destIP = destName;
         this.destPort = destP;
-    }
-
-    public String getSrcIP() {
-        return srcIP;
-    }
-
-    public void setSrcIP(String srcIP) {
-        this.srcIP = srcIP;
     }
 
     public int getSrcPort() {
