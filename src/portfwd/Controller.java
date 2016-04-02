@@ -1,5 +1,6 @@
 package portfwd;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -10,8 +11,10 @@ import javafx.util.Pair;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.*;
 import java.util.concurrent.RunnableFuture;
 
@@ -183,7 +186,42 @@ public class Controller implements Runnable {
 
             //create a selector
             Selector selector = helper.createSelector();
+            //register ServerSocketChannel with this selector with OP_ACCPET
             boolean registerSelectorOK = helper.registerSelector(servSockChannel,selector,3);
+            System.out.println("Listening on PORT " + port);
+
+            while(true)
+            {
+                int num = helper.select(selector);
+
+                //IF no activity loop back
+                if(num ==0)
+                {
+                    continue;
+                }
+
+                //Get the Keys of the corresponding activity and process one by one
+                Set keys = selector.selectedKeys();
+                Iterator it = keys.iterator();
+                while(it.hasNext())
+                {
+                    SelectionKey key = (SelectionKey)it.next();
+                    if((key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT)
+                    {
+                        System.out.println("Accepting New Connection...");
+
+                        SocketChannel sourceSocketChannel = servSockChannel.accept();
+                        //Set this socketChannel to Non Blocking
+                        helper.setSocketChannelNonBlocking(sourceSocketChannel);
+                        //Register this socket
+                        helper.registerSocketChannel(sourceSocketChannel,selector,1);
+
+                        SocketChannel forwardSocektChannel = null;
+
+                    }
+                }
+            }
+
 
         }catch(IOException io)
         {

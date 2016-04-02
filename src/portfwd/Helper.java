@@ -131,6 +131,41 @@ public class Helper
     }
 
     /**
+     * Registers a selector for the ACCEPT, READ, or WRITE
+     *
+     * @param sc
+     * @param selector
+     * @param option   Operation Set Bit (1=OP_READ, 2=OP_WRITE, 3=OP_CONNECT)
+     * @return True on Success and False on Failure
+     * @throws ClosedSelectorException
+     * @throws IllegalBlockingModeException
+     * @throws CancelledKeyException
+     * @throws IllegalArgumentException
+     * @throws ClosedChannelException
+     */
+    protected boolean registerSocketChannel(SocketChannel sc, Selector selector, int option) throws ClosedSelectorException
+            , IllegalBlockingModeException, CancelledKeyException, IllegalArgumentException, ClosedChannelException
+    {
+        switch (option)
+        {
+            case 1:
+                sc.register(selector, SelectionKey.OP_READ);
+                System.out.println();
+                return true;
+            case 2:
+                sc.register(selector, SelectionKey.OP_WRITE);
+                System.out.println();
+                return true;
+            case 3:
+                sc.register(selector, SelectionKey.OP_CONNECT);
+                System.out.println();
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
      * Creates a Socket Channel that is set in the non-blocking mode
      *
      * @return A Socket Channel
@@ -143,6 +178,20 @@ public class Helper
         sockChannel.setOption(StandardSocketOptions.SO_LINGER, null);//Set the option to SO_LINGER
         sockChannel.setOption(StandardSocketOptions.SO_REUSEADDR, null);//Set the option to SO_REUSEADDR
         return sockChannel;
+    }
+
+    protected void setSocketChannelNonBlocking(SocketChannel sc)
+    {
+        try
+        {
+            sc.configureBlocking(false);
+            sc.setOption(StandardSocketOptions.SO_LINGER, null);//Set the option to SO_LINGER
+            sc.setOption(StandardSocketOptions.SO_REUSEADDR, null);//Set the option to SO_REUSEADDR
+        }catch(IOException io)
+        {
+            io.printStackTrace();
+        }
+
     }
 
     /**
@@ -201,14 +250,16 @@ public class Helper
         return buf;
     }
 
-    protected void select(Selector selector)
+    protected int  select(Selector selector)
     {
+        int num=0;
         try {
-            selector.select();
+            num = selector.select();
         }catch(IOException io)
         {
             io.printStackTrace();
         }
+        return num;
     }
 
 }
