@@ -8,11 +8,15 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.util.Pair;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
 import java.util.*;
+import java.util.concurrent.RunnableFuture;
 
 //This is the intial commit
-public class Controller {
+public class Controller implements Runnable {
     @FXML
     private TextField srcIP;
     @FXML
@@ -38,7 +42,7 @@ public class Controller {
 
     Helper helper = new Helper();
     private HashMap<InetSocketAddress,InetSocketAddress> HostPairs = new HashMap<InetSocketAddress, InetSocketAddress>();
-
+    private int port = 0;
 
     private boolean isSourceInputValid()
     {
@@ -83,11 +87,13 @@ public class Controller {
     {
         System.out.println("Route button clicked ! ");
 
-
+        int port = 0;
         if(isSourceInputValid() == true && isDestInputValid() == true)
         {
             tempSource = new InetSocketAddress(srcIP.getText(), Integer.parseInt(srcPort.getText()));
             tempDest = new InetSocketAddress(destIP.getText(), Integer.parseInt(destPort.getText()));
+
+            this.port = Integer.parseInt(srcPort.getText());
 
             helper.addHost(HostPairs,tempSource,tempDest);
 
@@ -116,6 +122,10 @@ public class Controller {
         destPort.clear();
 
         updateTable();
+
+        if(port != 0) {
+            new Thread(this).start();
+        }
 
     }
 
@@ -160,4 +170,25 @@ public class Controller {
 
     }
 
+    public void run()
+    {
+        try {
+            ConnectionTracker tracker = new ConnectionTracker();
+            Helper helper = new Helper();
+
+            //Create A ServerSocketChannel To Listen on the given port
+            ServerSocketChannel servSockChannel = helper.makeNonBlockingServerSocketChannnel();
+            //Bind ther serverSocketChannel to the port
+            helper.bindServerSocketChannel(servSockChannel, port);
+
+            //create a selector
+            Selector selector = helper.createSelector();
+            boolean registerSelectorOK = helper.registerSelector(servSockChannel,selector,3);
+
+        }catch(IOException io)
+        {
+            io.printStackTrace();
+        }
+
+    }
 }

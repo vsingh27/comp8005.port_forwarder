@@ -201,4 +201,14 @@ public class Helper
         return buf;
     }
 
+    protected void select(Selector selector)
+    {
+        try {
+            selector.select();
+        }catch(IOException io)
+        {
+            io.printStackTrace();
+        }
+    }
+
 }
