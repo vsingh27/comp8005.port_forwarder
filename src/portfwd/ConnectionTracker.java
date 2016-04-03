@@ -12,8 +12,7 @@ public class ConnectionTracker {
     //protected HashMap<Integer, InetSocketAddress> portTracker;//To keep track of ports to the forwarding IP and Port
     protected HashMap<Integer, SocketChannel> socketTracker;//To track sockets; whcihc socket to forward data to
 
-    ConnectionTracker()
-    {
+    ConnectionTracker() {
         //this.portTracker = new HashMap<Integer, InetSocketAddress>();
         this.socketTracker = new HashMap<Integer, SocketChannel>();
     }
@@ -34,25 +33,23 @@ public class ConnectionTracker {
         }
     }
     */
-    protected InetSocketAddress generateInetSockAddress(int port, String hostName)
-    {
-        InetSocketAddress addr = new InetSocketAddress(hostName,port);
+    protected InetSocketAddress generateInetSockAddress(int port, String hostName) {
+        InetSocketAddress addr = new InetSocketAddress(hostName, port);
         return addr;
     }
 
-    protected void populateSocketTracker(SocketChannel socChannel1, SocketChannel socChannel2)
-    {
+    protected void populateSocketTracker(SocketChannel socChannel1, SocketChannel socChannel2) {
         socketTracker.put(socChannel1.hashCode(), socChannel2);
         socketTracker.put(socChannel2.hashCode(), socChannel1);
     }
 
     /**
      * Returns the corresponding socket
+     *
      * @param sockChannel
      * @return
      */
-    protected SocketChannel getForwardingSocketFromSocketTracker(SocketChannel sockChannel)
-    {
+    protected SocketChannel getForwardingSocketFromSocketTracker(SocketChannel sockChannel) {
         return socketTracker.get(sockChannel.hashCode());
     }
 

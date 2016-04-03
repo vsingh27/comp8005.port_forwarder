@@ -1,6 +1,5 @@
 package portfwd;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -15,8 +14,10 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.*;
-import java.util.concurrent.RunnableFuture;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 //This is the intial commit
 public class Controller implements Runnable {
@@ -29,7 +30,7 @@ public class Controller implements Runnable {
     @FXML
     private TextField destPort;
     @FXML
-    private TableView<Pair<InetSocketAddress,InetSocketAddress>> PairTable;
+    private TableView<Pair<InetSocketAddress, InetSocketAddress>> PairTable;
     @FXML
     private TableColumn SourceHostname;
     @FXML
@@ -44,41 +45,35 @@ public class Controller implements Runnable {
     protected InetSocketAddress tempDest;
 
     Helper helper = new Helper();
-    private HashMap<InetSocketAddress,InetSocketAddress> HostPairs = new HashMap<InetSocketAddress, InetSocketAddress>();
+    private HashMap<InetSocketAddress, InetSocketAddress> HostPairs = new HashMap<InetSocketAddress, InetSocketAddress>();
     private int sourcePort = 0;
     private int destinationPort = 0;
     private String destinationIP = null;
 
-    private boolean isSourceInputValid()
-    {
+    private boolean isSourceInputValid() {
         boolean b = false;
-        if(!(srcIP.getText() == null || srcIP.getText().length() == 0) && !(srcPort.getText() == null || srcPort.getText().length() == 0))
-        {
-            try
-            {
+        if (!(srcIP.getText() == null || srcIP.getText().length() == 0) && !(srcPort.getText() == null || srcPort.getText().length() == 0)) {
+            try {
                 InetSocketAddress test = new InetSocketAddress(srcIP.getText(), Integer.parseInt(srcPort.getText()));
                 b = true;
 
-            } catch(Exception e){
+            } catch (Exception e) {
 
-        }
+            }
 
         }
 
         return b;
     }
 
-    private boolean isDestInputValid()
-    {
+    private boolean isDestInputValid() {
         boolean b = false;
-        if(!(destIP.getText() == null || destIP.getText().length() == 0) && !(destPort.getText() == null || destPort.getText().length() == 0))
-        {
-            try
-            {
+        if (!(destIP.getText() == null || destIP.getText().length() == 0) && !(destPort.getText() == null || destPort.getText().length() == 0)) {
+            try {
                 InetSocketAddress test = new InetSocketAddress(destIP.getText(), Integer.parseInt(destPort.getText()));
                 b = true;
 
-            } catch(Exception e){
+            } catch (Exception e) {
 
             }
 
@@ -88,13 +83,11 @@ public class Controller implements Runnable {
     }
 
 
-    public void routeButtonClicked()
-    {
+    public void routeButtonClicked() {
         System.out.println("Route button clicked ! ");
 
         int port = 0;
-        if(isSourceInputValid() == true && isDestInputValid() == true)
-        {
+        if (isSourceInputValid() == true && isDestInputValid() == true) {
             tempSource = new InetSocketAddress(srcIP.getText(), Integer.parseInt(srcPort.getText()));
             tempDest = new InetSocketAddress(destIP.getText(), Integer.parseInt(destPort.getText()));
 
@@ -102,13 +95,12 @@ public class Controller implements Runnable {
             this.destinationPort = Integer.parseInt(destPort.getText());
             this.destinationIP = destIP.getText();
 
-            helper.addHost(HostPairs,tempSource,tempDest);
+            helper.addHost(HostPairs, tempSource, tempDest);
 
             Iterator it = HostPairs.entrySet().iterator();
 
-            while (it.hasNext())
-            {
-                Map.Entry pair = (Map.Entry)it.next();
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry) it.next();
                 InetSocketAddress prntSrc = (InetSocketAddress) pair.getKey();
                 InetSocketAddress prntDest = (InetSocketAddress) pair.getValue();
 
@@ -116,10 +108,7 @@ public class Controller implements Runnable {
 
             }
 
-        }
-
-        else
-        {
+        } else {
             System.out.println("Invalid input!");
         }
 
@@ -130,17 +119,16 @@ public class Controller implements Runnable {
 
         updateTable();
 
-        if(sourcePort != 0) {
+        if (sourcePort != 0) {
             new Thread(this).start();
         }
 
     }
 
-    public void updateTable()
-    {
+    public void updateTable() {
         PairTable.setEditable(true);
 
-        ObservableList<Pair<InetSocketAddress,InetSocketAddress>> data1 = FXCollections.observableArrayList();
+        ObservableList<Pair<InetSocketAddress, InetSocketAddress>> data1 = FXCollections.observableArrayList();
 
 
         //ObservableList<ForwardPair> data = FXCollections.observableArrayList();
@@ -148,14 +136,13 @@ public class Controller implements Runnable {
 
         Iterator iter = HostPairs.entrySet().iterator();
 
-        while (iter.hasNext())
-        {
-            Map.Entry pair = (Map.Entry)iter.next();
+        while (iter.hasNext()) {
+            Map.Entry pair = (Map.Entry) iter.next();
 
             InetSocketAddress tmpSrc = (InetSocketAddress) pair.getKey();
             InetSocketAddress tmpDest = (InetSocketAddress) pair.getValue();
 
-            Pair dataVal = new Pair(tmpSrc,tmpDest);
+            Pair dataVal = new Pair(tmpSrc, tmpDest);
 
             data1.add(dataVal);
 
@@ -172,13 +159,11 @@ public class Controller implements Runnable {
 
     }
 
-    public void StartButtonClicked()
-    {
+    public void StartButtonClicked() {
 
     }
 
-    public void run()
-    {
+    public void run() {
         try {
             ConnectionTracker tracker = new ConnectionTracker();
             Helper helper = new Helper();
@@ -191,47 +176,63 @@ public class Controller implements Runnable {
             //create a selector
             Selector selector = helper.createSelector();
             //register ServerSocketChannel with this selector with OP_ACCPET
-            boolean registerSelectorOK = helper.registerSelector(servSockChannel,selector,3);
+            boolean registerSelectorOK = helper.registerSelector(servSockChannel, selector, 3);
             System.out.println("Listening on PORT " + sourcePort);
             ConnectionTracker connectionTracker = new ConnectionTracker();
 
-            while(true)
-            {
+            while (true) {
                 int num = helper.select(selector);
 
                 //IF no activity loop back
-                if(num ==0)
-                {
+                if (num == 0) {
                     continue;
                 }
 
                 //Get the Keys of the corresponding activity and process one by one
                 Set<SelectionKey> keys = selector.selectedKeys();
                 Iterator<SelectionKey> it = keys.iterator();
-                while(it.hasNext())
-                {
+                while (it.hasNext()) {
                     SelectionKey key = it.next();
-                    if((key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT)
-                    {
+                    //If There are new Connections
+                    if ((key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT) {
                         System.out.println("Accepting New Connection...");
 
                         SocketChannel sourceSocketChannel = servSockChannel.accept();
                         //Set this socketChannel to Non Blocking
                         helper.setSocketChannelNonBlocking(sourceSocketChannel);
                         //Register this socket For OP_READ
-                        helper.registerSocketChannel(sourceSocketChannel,selector,1);
+                        helper.registerSocketChannel(sourceSocketChannel, selector, 1);
                         //Make the forward Socket
-                        SocketChannel newSocChannel = helper.makeForwardingSocket(sourceSocketChannel, this.destinationPort, this.destinationIP,selector);
+                        SocketChannel newSocChannel = helper.makeForwardingSocket(sourceSocketChannel, this.destinationPort, this.destinationIP, selector);
                         //Add the Forward Socket and the client socket to the MAP
-                        connectionTracker.populateSocketTracker(sourceSocketChannel,newSocChannel);
+                        connectionTracker.populateSocketTracker(sourceSocketChannel, newSocChannel);
                         System.out.println("Connection Established with Server...");
+                    } else if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ) {
+                        SocketChannel receiveChannel = null;
+
+                        try {
+                            //Process the incoming data
+                            receiveChannel = (SocketChannel) key.channel();
+                            SocketChannel forwardChannel = tracker.getForwardingSocketFromSocketTracker(receiveChannel);
+                            boolean processDataOK = helper.processData(receiveChannel,forwardChannel);
+                            if(!processDataOK)
+                            {
+                                key.cancel();
+                                try{
+                                    receiveChannel.close();
+                                }catch (IOException io)
+                                {
+                                    System.out.println("Error closing socket...");
+                                    io.printStackTrace();
+                                }
+                            }
+                        } catch (Exception io) {
+
+                        }
                     }
                 }
             }
-
-
-        }catch(IOException io)
-        {
+        } catch (IOException io) {
             io.printStackTrace();
         }
 
