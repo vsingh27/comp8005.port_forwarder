@@ -50,8 +50,8 @@ public class Helper
         ssChannel.configureBlocking(false);
         //Set the options of this channel
         //In this case we will set it to SO_LINGER and SO_REUSEADDR
-        ssChannel.setOption(StandardSocketOptions.SO_LINGER, null);
-        ssChannel.setOption(StandardSocketOptions.SO_REUSEADDR, null);
+        //ssChannel.setOption(StandardSocketOptions.SO_LINGER, null);
+        ssChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
 
         return ssChannel;
     }
@@ -175,8 +175,8 @@ public class Helper
     {
         SocketChannel sockChannel = SocketChannel.open();
         sockChannel.configureBlocking(false);
-        sockChannel.setOption(StandardSocketOptions.SO_LINGER, null);//Set the option to SO_LINGER
-        sockChannel.setOption(StandardSocketOptions.SO_REUSEADDR, null);//Set the option to SO_REUSEADDR
+        //sockChannel.setOption(StandardSocketOptions.SO_LINGER, true);//Set the option to SO_LINGER
+        sockChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);//Set the option to SO_REUSEADDR
         return sockChannel;
     }
 
@@ -185,8 +185,8 @@ public class Helper
         try
         {
             sc.configureBlocking(false);
-            sc.setOption(StandardSocketOptions.SO_LINGER, null);//Set the option to SO_LINGER
-            sc.setOption(StandardSocketOptions.SO_REUSEADDR, null);//Set the option to SO_REUSEADDR
+           // sc.setOption(StandardSocketOptions.SO_LINGER, null);//Set the option to SO_LINGER
+            sc.setOption(StandardSocketOptions.SO_REUSEADDR, true);//Set the option to SO_REUSEADDR
         }catch(IOException io)
         {
             io.printStackTrace();
@@ -260,6 +260,33 @@ public class Helper
             io.printStackTrace();
         }
         return num;
+    }
+
+    protected SocketChannel makeForwardingSocket(SocketChannel sc, int port, String hostIP, Selector selector)
+    {
+        InetSocketAddress address = new InetSocketAddress(hostIP,port);
+        SocketChannel socChannel = null;
+        try
+        {
+            socChannel = SocketChannel.open();
+            //Connect to the forwarding host
+            socChannel.connect(address);
+            //register the socket for OP_READ
+            registerSocketChannel(socChannel,selector,1);
+
+        }catch (IOException io)
+        {
+            io.printStackTrace();
+            try
+            {
+                sc.close();
+                socChannel.close();
+            }catch (IOException io2)
+            {
+                io2.printStackTrace();
+            }
+        }
+        return socChannel;
     }
 
 }

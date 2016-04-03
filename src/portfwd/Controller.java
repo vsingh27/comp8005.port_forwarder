@@ -45,7 +45,9 @@ public class Controller implements Runnable {
 
     Helper helper = new Helper();
     private HashMap<InetSocketAddress,InetSocketAddress> HostPairs = new HashMap<InetSocketAddress, InetSocketAddress>();
-    private int port = 0;
+    private int sourcePort = 0;
+    private int destinationPort = 0;
+    private String destinationIP = null;
 
     private boolean isSourceInputValid()
     {
@@ -96,7 +98,9 @@ public class Controller implements Runnable {
             tempSource = new InetSocketAddress(srcIP.getText(), Integer.parseInt(srcPort.getText()));
             tempDest = new InetSocketAddress(destIP.getText(), Integer.parseInt(destPort.getText()));
 
-            this.port = Integer.parseInt(srcPort.getText());
+            this.sourcePort = Integer.parseInt(srcPort.getText());
+            this.destinationPort = Integer.parseInt(destPort.getText());
+            this.destinationIP = destIP.getText();
 
             helper.addHost(HostPairs,tempSource,tempDest);
 
@@ -126,7 +130,7 @@ public class Controller implements Runnable {
 
         updateTable();
 
-        if(port != 0) {
+        if(sourcePort != 0) {
             new Thread(this).start();
         }
 
@@ -182,13 +186,14 @@ public class Controller implements Runnable {
             //Create A ServerSocketChannel To Listen on the given port
             ServerSocketChannel servSockChannel = helper.makeNonBlockingServerSocketChannnel();
             //Bind ther serverSocketChannel to the port
-            helper.bindServerSocketChannel(servSockChannel, port);
+            helper.bindServerSocketChannel(servSockChannel, sourcePort);
 
             //create a selector
             Selector selector = helper.createSelector();
             //register ServerSocketChannel with this selector with OP_ACCPET
             boolean registerSelectorOK = helper.registerSelector(servSockChannel,selector,3);
-            System.out.println("Listening on PORT " + port);
+            System.out.println("Listening on PORT " + sourcePort);
+            ConnectionTracker connectionTracker = new ConnectionTracker();
 
             while(true)
             {
@@ -201,11 +206,11 @@ public class Controller implements Runnable {
                 }
 
                 //Get the Keys of the corresponding activity and process one by one
-                Set keys = selector.selectedKeys();
-                Iterator it = keys.iterator();
+                Set<SelectionKey> keys = selector.selectedKeys();
+                Iterator<SelectionKey> it = keys.iterator();
                 while(it.hasNext())
                 {
-                    SelectionKey key = (SelectionKey)it.next();
+                    SelectionKey key = it.next();
                     if((key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT)
                     {
                         System.out.println("Accepting New Connection...");
@@ -213,11 +218,13 @@ public class Controller implements Runnable {
                         SocketChannel sourceSocketChannel = servSockChannel.accept();
                         //Set this socketChannel to Non Blocking
                         helper.setSocketChannelNonBlocking(sourceSocketChannel);
-                        //Register this socket
+                        //Register this socket For OP_READ
                         helper.registerSocketChannel(sourceSocketChannel,selector,1);
-
-                        SocketChannel forwardSocektChannel = null;
-
+                        //Make the forward Socket
+                        SocketChannel newSocChannel = helper.makeForwardingSocket(sourceSocketChannel, this.destinationPort, this.destinationIP,selector);
+                        //Add the Forward Socket and the client socket to the MAP
+                        connectionTracker.populateSocketTracker(sourceSocketChannel,newSocChannel);
+                        System.out.println("Connection Established with Server...");
                     }
                 }
             }
