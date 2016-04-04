@@ -54,11 +54,7 @@
             </VBox>
          </top>
          <bottom>
-            <HBox alignment="CENTER" BorderPane.alignment="CENTER">
-               <children>
-                  <Button alignment="CENTER" mnemonicParsing="false" onAction="#StartButtonClicked" text="Start" />
-               </children>
-            </HBox>
+            <HBox alignment="CENTER" BorderPane.alignment="CENTER" />
          </bottom>
          <right>
             <TextFlow BorderPane.alignment="CENTER" />
