@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="comp8005.port_forwarder:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/comp8005_port_forwarder_jar</output-path>
+    <root id="archive" name="comp8005.port_forwarder.jar">
+      <element id="module-output" name="comp8005.port_forwarder" />
+    </root>
+  </artifact>
+</component>

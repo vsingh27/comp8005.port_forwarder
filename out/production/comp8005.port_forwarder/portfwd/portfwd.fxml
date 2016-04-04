@@ -41,11 +41,10 @@
                   </MenuBar>
                   <HBox>
                      <children>
-                        <TextField promptText="Source IP" />
-                        <TextField layoutX="10.0" layoutY="10.0" promptText="Source Port" />
-                        <Button mnemonicParsing="false" text="Route" />
-                        <TextField layoutX="159.0" layoutY="10.0" promptText="Destination IP" text="Destination Port" />
-                        <TextField />
+                        <TextField fx:id="srcPort" layoutX="10.0" layoutY="10.0" promptText="Source Port" />
+                        <Button mnemonicParsing="false" onAction="#routeButtonClicked" text="Route" />
+                        <TextField fx:id="destIP" layoutX="159.0" layoutY="10.0" promptText="Destination IP" />
+                        <TextField fx:id="destPort" promptText="Destination Port" />
                      </children>
                      <VBox.margin>
                         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
@@ -54,20 +53,18 @@
                </children>
             </VBox>
          </top>
-         <left>
-            <PieChart BorderPane.alignment="CENTER" />
-         </left>
          <bottom>
-            <HBox BorderPane.alignment="CENTER">
-               <children>
-                  <Label text="Label" />
-                  <ProgressBar prefWidth="200.0" progress="0.0" />
-               </children>
-            </HBox>
+            <HBox alignment="CENTER" BorderPane.alignment="CENTER" />
          </bottom>
          <right>
             <TextFlow BorderPane.alignment="CENTER" />
-         </right></BorderPane>
+         </right>
+         <center>
+            <TableView fx:id="PairTable" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="235.0" prefWidth="358.0" BorderPane.alignment="BOTTOM_RIGHT" />
+         </center>
+         <left>
+            <TextArea fx:id="appConsole" prefHeight="235.0" prefWidth="298.0" style="-fx-background-color: #000000;" stylesheets="@../css/myStyle.css" text="Welcome to the Port Forwarder!" BorderPane.alignment="CENTER" />
+         </left></BorderPane>
    </children>
    <columnConstraints>
       <ColumnConstraints />
