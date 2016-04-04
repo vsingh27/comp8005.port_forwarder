@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 //This is the intial commit
-public class Controller {
+public class Controller implements Runnable {
     @FXML
     private TextField srcPort;
     @FXML
@@ -96,6 +96,9 @@ public class Controller {
             tempSrcPort = Integer.parseInt(srcPort.getText());
             tempDest = new InetSocketAddress(destIP.getText(), Integer.parseInt(destPort.getText()));
 
+            this.sourcePort = Integer.parseInt(srcPort.getText());
+            this.destinationIP = destIP.getText();
+            this.destinationPort = Integer.parseInt(destPort.getText());
             tempFPO = new ForwardPair(tempSrcPort,tempDest.getHostName(),tempDest.getPort());
             TableData.add(tempFPO);
 
@@ -130,6 +133,9 @@ public class Controller {
         destPort.clear();
 
         updateTable();
+        if (sourcePort != 0) {
+            new Thread(this).start();
+        }
 
     }
 
@@ -159,7 +165,6 @@ public class Controller {
     public void StartButtonClicked()
     {
         appConsole.appendText("\n Start button clicked!");
-        run();
 
     }
 
@@ -231,6 +236,7 @@ public class Controller {
                         }
                     }
                 }
+                keys.clear();
             }
         } catch (IOException io) {
             io.printStackTrace();
