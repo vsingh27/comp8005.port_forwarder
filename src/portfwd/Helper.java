@@ -101,7 +101,7 @@ public class Helper
      * @throws ClosedChannelException
      */
     protected boolean registerSelector(ServerSocketChannel ssc, Selector selector, int option) throws ClosedSelectorException
-        , IllegalBlockingModeException, CancelledKeyException, IllegalArgumentException, ClosedChannelException {
+            , IllegalBlockingModeException, CancelledKeyException, IllegalArgumentException, ClosedChannelException {
         switch (option) {
             case 1:
                 ssc.register(selector, SelectionKey.OP_READ);
@@ -138,7 +138,7 @@ public class Helper
      * @throws ClosedChannelException
      */
     protected boolean registerSocketChannel(SocketChannel sc, Selector selector, int option) throws ClosedSelectorException
-        , IllegalBlockingModeException, CancelledKeyException, IllegalArgumentException, ClosedChannelException {
+            , IllegalBlockingModeException, CancelledKeyException, IllegalArgumentException, ClosedChannelException {
         switch (option) {
             case 1:
                 sc.register(selector, SelectionKey.OP_READ);
@@ -167,7 +167,7 @@ public class Helper
         SocketChannel sockChannel = SocketChannel.open();
         sockChannel.configureBlocking(false);
         //sockChannel.setOption(StandardSocketOptions.SO_LINGER, true);//Set the option to SO_LINGER
-        sockChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);//Set the option to SO_REUSEADDR
+        //sockChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);//Set the option to SO_REUSEADDR
         return sockChannel;
     }
 
@@ -175,7 +175,7 @@ public class Helper
         try {
             sc.configureBlocking(false);
             // sc.setOption(StandardSocketOptions.SO_LINGER, null);//Set the option to SO_LINGER
-            sc.setOption(StandardSocketOptions.SO_REUSEADDR, true);//Set the option to SO_REUSEADDR
+            //sc.setOption(StandardSocketOptions.SO_REUSEADDR, true);//Set the option to SO_REUSEADDR
         } catch (IOException io) {
             io.printStackTrace();
         }
@@ -247,10 +247,14 @@ public class Helper
         SocketChannel socChannel = null;
         try {
             socChannel = SocketChannel.open();
+
             //Connect to the forwarding host
             socChannel.connect(address);
             //register the socket for OP_READ
+            setSocketChannelNonBlocking(socChannel);
             registerSocketChannel(socChannel, selector, 1);
+
+
 
         } catch (IOException io) {
             io.printStackTrace();
@@ -267,22 +271,45 @@ public class Helper
     protected boolean processData(SocketChannel recieveChannel, SocketChannel forwardSocketChannel) {
         ByteBuffer buffer = ByteBuffer.allocate(BUFFERSIZE);
         int bytesRead;
+
         try {
-            recieveChannel.read(buffer);
-            buffer.flip();
+            while ((bytesRead = recieveChannel.read(buffer)) > 0)
+            {
+              buffer.flip();
+              //System.out.println("printing Buffer...");
+              //print(buffer);
+              forwardSocketChannel.write(buffer);
+              buffer.clear();
+            }
+
+
 
             //if no data close socket
             if(buffer.limit() == 0)
             {
+                recieveChannel.close();
+                forwardSocketChannel.close();
                 return false;
             }
 
-            forwardSocketChannel.write(buffer);
-            System.out.println("Processed Data and sent to the corresponding socket....");
         } catch (IOException io) {
             io.printStackTrace();
         }
         return true;
+    }
+
+    protected void print(ByteBuffer buffer)
+    {
+      char temp;
+      StringBuilder stringbuilder = new StringBuilder();
+
+      while(buffer.hasRemaining())
+      {
+        temp = (char)buffer.get();
+        stringbuilder.append(temp);
+      }
+
+      System.out.println(stringbuilder.toString());
     }
 
 }
