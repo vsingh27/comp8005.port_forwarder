@@ -5,7 +5,9 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Pair;
 
 import java.io.IOException;
@@ -22,58 +24,59 @@ import java.util.Set;
 //This is the intial commit
 public class Controller implements Runnable {
     @FXML
-    private TextField srcIP;
-    @FXML
     private TextField srcPort;
     @FXML
     private TextField destIP;
     @FXML
     private TextField destPort;
     @FXML
-    private TableView<Pair<InetSocketAddress, InetSocketAddress>> PairTable;
+    private TableView<ForwardPair> PairTable;
     @FXML
-    private TableColumn SourceHostname;
-    @FXML
-    private TableColumn SourcePortNum;
-    @FXML
-    private TableColumn DestHostname;
-    @FXML
-    private TableColumn DestPortNum;
+    private TextArea appConsole;
 
 
-    protected InetSocketAddress tempSource;
+
+    protected int tempSrcPort;
     protected InetSocketAddress tempDest;
 
     Helper helper = new Helper();
-    private HashMap<InetSocketAddress, InetSocketAddress> HostPairs = new HashMap<InetSocketAddress, InetSocketAddress>();
+    private HashMap<Integer ,InetSocketAddress> HostPairs = new HashMap<Integer, InetSocketAddress>();
+
+    private ObservableList<ForwardPair> TableData = FXCollections.observableArrayList();
+    private ForwardPair tempFPO;
+
+    private boolean isTableMade = false;
     private int sourcePort = 0;
     private int destinationPort = 0;
     private String destinationIP = null;
 
-    private boolean isSourceInputValid() {
-        boolean b = false;
-        if (!(srcIP.getText() == null || srcIP.getText().length() == 0) && !(srcPort.getText() == null || srcPort.getText().length() == 0)) {
-            try {
-                InetSocketAddress test = new InetSocketAddress(srcIP.getText(), Integer.parseInt(srcPort.getText()));
-                b = true;
 
-            } catch (Exception e) {
 
-            }
+    private boolean isSourceInputValid()
+    {
+        if(!(srcPort.getText() == null || srcPort.getText().length() == 0)) {
+
+            return true;
 
         }
+        else
+        {
+            return false;
 
-        return b;
+        }
     }
 
-    private boolean isDestInputValid() {
+    private boolean isDestInputValid()
+    {
         boolean b = false;
-        if (!(destIP.getText() == null || destIP.getText().length() == 0) && !(destPort.getText() == null || destPort.getText().length() == 0)) {
-            try {
+        if(!(destIP.getText() == null || destIP.getText().length() == 0) && !(destPort.getText() == null || destPort.getText().length() == 0))
+        {
+            try
+            {
                 InetSocketAddress test = new InetSocketAddress(destIP.getText(), Integer.parseInt(destPort.getText()));
                 b = true;
 
-            } catch (Exception e) {
+            } catch(Exception e){
 
             }
 
@@ -83,83 +86,85 @@ public class Controller implements Runnable {
     }
 
 
-    public void routeButtonClicked() {
+    public void routeButtonClicked()
+    {
         System.out.println("Route button clicked ! ");
 
-        int port = 0;
-        if (isSourceInputValid() == true && isDestInputValid() == true) {
-            tempSource = new InetSocketAddress(srcIP.getText(), Integer.parseInt(srcPort.getText()));
+
+        if(isSourceInputValid() == true && isDestInputValid() == true)
+        {
+            tempSrcPort = Integer.parseInt(srcPort.getText());
             tempDest = new InetSocketAddress(destIP.getText(), Integer.parseInt(destPort.getText()));
 
             this.sourcePort = Integer.parseInt(srcPort.getText());
-            this.destinationPort = Integer.parseInt(destPort.getText());
             this.destinationIP = destIP.getText();
+            this.destinationPort = Integer.parseInt(destPort.getText());
+            tempFPO = new ForwardPair(tempSrcPort,tempDest.getHostName(),tempDest.getPort());
+            TableData.add(tempFPO);
 
-            helper.addHost(HostPairs, tempSource, tempDest);
+            appConsole.appendText("\n Valid pair added!");
+
+
+            helper.addHost(HostPairs,tempSrcPort,tempDest);
 
             Iterator it = HostPairs.entrySet().iterator();
 
-            while (it.hasNext()) {
-                Map.Entry pair = (Map.Entry) it.next();
-                InetSocketAddress prntSrc = (InetSocketAddress) pair.getKey();
+            while (it.hasNext())
+            {
+                Map.Entry pair = (Map.Entry)it.next();
+
+                int prntSrc = (Integer) pair.getKey();
                 InetSocketAddress prntDest = (InetSocketAddress) pair.getValue();
 
-                System.out.println(prntSrc.getHostName() + "  " + prntSrc.getPort() + "  " + prntDest.getHostName() + "  " + prntDest.getPort());
+                System.out.println("Forwarder's port: " + prntSrc + "  " + prntDest.getHostName() + "  " + prntDest.getPort());
 
             }
 
-        } else {
-            System.out.println("Invalid input!");
         }
 
-        srcIP.clear();
+        else
+        {
+            System.out.println("Invalid input!");
+            appConsole.appendText("\nInvalid input!");
+        }
+
         srcPort.clear();
         destIP.clear();
         destPort.clear();
 
         updateTable();
-
         if (sourcePort != 0) {
             new Thread(this).start();
         }
 
     }
 
-    public void updateTable() {
-        PairTable.setEditable(true);
+    public void updateTable()
+    {
+        if (!isTableMade){
+            PairTable.setEditable(true);
+            TableColumn SourcePortNum = new TableColumn("Src Port");
+            SourcePortNum.setCellValueFactory(new PropertyValueFactory<ForwardPair,Integer>("srcPort"));
 
-        ObservableList<Pair<InetSocketAddress, InetSocketAddress>> data1 = FXCollections.observableArrayList();
+            TableColumn DestHostname = new TableColumn("Dest IP");
+            DestHostname.setCellValueFactory(new PropertyValueFactory<ForwardPair,String>("destIP"));
+            TableColumn DestPortNum = new TableColumn("Dest Port");
+            DestPortNum.setCellValueFactory(new PropertyValueFactory<ForwardPair,Integer>("destPort"));
 
 
-        //ObservableList<ForwardPair> data = FXCollections.observableArrayList();
-        //ForwardPair temp = new ForwardPair();
-
-        Iterator iter = HostPairs.entrySet().iterator();
-
-        while (iter.hasNext()) {
-            Map.Entry pair = (Map.Entry) iter.next();
-
-            InetSocketAddress tmpSrc = (InetSocketAddress) pair.getKey();
-            InetSocketAddress tmpDest = (InetSocketAddress) pair.getValue();
-
-            Pair dataVal = new Pair(tmpSrc, tmpDest);
-
-            data1.add(dataVal);
-
-            //temp.setSrcIP(tmpSrc.getHostName());
-            //temp.setSrcPort(tmpSrc.getPort());
-            //temp.setDestIP(tmpDest.getHostName());
-            //temp.setDestPort(tmpDest.getPort());
-
-            //data.add(temp);
-
+            PairTable.setItems(TableData);
+            PairTable.getColumns().addAll(SourcePortNum,DestHostname,DestPortNum);
+            isTableMade = true;
         }
 
-        PairTable.setItems(data1);
+        else
+            PairTable.setItems(TableData);
 
     }
 
-    public void StartButtonClicked() {
+    public void StartButtonClicked()
+    {
+        appConsole.appendText("\n Start button clicked!");
 
     }
 
@@ -231,6 +236,7 @@ public class Controller implements Runnable {
                         }
                     }
                 }
+                keys.clear();
             }
         } catch (IOException io) {
             io.printStackTrace();

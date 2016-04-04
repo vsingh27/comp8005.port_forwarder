@@ -8,9 +8,12 @@ import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
-public class Helper {
-
+public class Helper
+{
     private final int BUFFERSIZE = 2048;
 
     /**
@@ -18,7 +21,8 @@ public class Helper {
      * @param key
      * @param value
      */
-    protected void addHost(HashMap map, InetSocketAddress key, InetSocketAddress value) {
+    protected void addHost(HashMap map, int key, InetSocketAddress value)
+    {
 
         map.put(key, value);
     }
@@ -27,7 +31,8 @@ public class Helper {
      * @param map
      * @param key
      */
-    protected void removeHost(HashMap map, InetSocketAddress key) {
+    protected void removeHost(HashMap map, int key)
+    {
         map.remove(key);
     }
 
@@ -96,7 +101,7 @@ public class Helper {
      * @throws ClosedChannelException
      */
     protected boolean registerSelector(ServerSocketChannel ssc, Selector selector, int option) throws ClosedSelectorException
-            , IllegalBlockingModeException, CancelledKeyException, IllegalArgumentException, ClosedChannelException {
+        , IllegalBlockingModeException, CancelledKeyException, IllegalArgumentException, ClosedChannelException {
         switch (option) {
             case 1:
                 ssc.register(selector, SelectionKey.OP_READ);
@@ -133,7 +138,7 @@ public class Helper {
      * @throws ClosedChannelException
      */
     protected boolean registerSocketChannel(SocketChannel sc, Selector selector, int option) throws ClosedSelectorException
-            , IllegalBlockingModeException, CancelledKeyException, IllegalArgumentException, ClosedChannelException {
+        , IllegalBlockingModeException, CancelledKeyException, IllegalArgumentException, ClosedChannelException {
         switch (option) {
             case 1:
                 sc.register(selector, SelectionKey.OP_READ);
