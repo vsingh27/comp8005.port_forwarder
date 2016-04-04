@@ -35,12 +35,11 @@ public class Controller implements Runnable {
     private TextArea appConsole;
 
 
-
     protected int tempSrcPort;
     protected InetSocketAddress tempDest;
 
     Helper helper = new Helper();
-    private HashMap<Integer ,InetSocketAddress> HostPairs = new HashMap<Integer, InetSocketAddress>();
+    private HashMap<Integer, InetSocketAddress> HostPairs = new HashMap<Integer, InetSocketAddress>();
 
     private ObservableList<ForwardPair> TableData = FXCollections.observableArrayList();
     private ForwardPair tempFPO;
@@ -51,32 +50,25 @@ public class Controller implements Runnable {
     private String destinationIP = null;
 
 
-
-    private boolean isSourceInputValid()
-    {
-        if(!(srcPort.getText() == null || srcPort.getText().length() == 0)) {
+    private boolean isSourceInputValid() {
+        if (!(srcPort.getText() == null || srcPort.getText().length() == 0)) {
 
             return true;
 
-        }
-        else
-        {
+        } else {
             return false;
 
         }
     }
 
-    private boolean isDestInputValid()
-    {
+    private boolean isDestInputValid() {
         boolean b = false;
-        if(!(destIP.getText() == null || destIP.getText().length() == 0) && !(destPort.getText() == null || destPort.getText().length() == 0))
-        {
-            try
-            {
+        if (!(destIP.getText() == null || destIP.getText().length() == 0) && !(destPort.getText() == null || destPort.getText().length() == 0)) {
+            try {
                 InetSocketAddress test = new InetSocketAddress(destIP.getText(), Integer.parseInt(destPort.getText()));
                 b = true;
 
-            } catch(Exception e){
+            } catch (Exception e) {
 
             }
 
@@ -86,32 +78,29 @@ public class Controller implements Runnable {
     }
 
 
-    public void routeButtonClicked()
-    {
+    public void routeButtonClicked() {
         System.out.println("Route button clicked ! ");
 
 
-        if(isSourceInputValid() == true && isDestInputValid() == true)
-        {
+        if (isSourceInputValid() == true && isDestInputValid() == true) {
             tempSrcPort = Integer.parseInt(srcPort.getText());
             tempDest = new InetSocketAddress(destIP.getText(), Integer.parseInt(destPort.getText()));
 
             this.sourcePort = Integer.parseInt(srcPort.getText());
             this.destinationIP = destIP.getText();
             this.destinationPort = Integer.parseInt(destPort.getText());
-            tempFPO = new ForwardPair(tempSrcPort,tempDest.getHostName(),tempDest.getPort());
+            tempFPO = new ForwardPair(tempSrcPort, tempDest.getHostName(), tempDest.getPort());
             TableData.add(tempFPO);
 
             appConsole.appendText("\n Valid pair added!");
 
 
-            helper.addHost(HostPairs,tempSrcPort,tempDest);
+            helper.addHost(HostPairs, tempSrcPort, tempDest);
 
             Iterator it = HostPairs.entrySet().iterator();
 
-            while (it.hasNext())
-            {
-                Map.Entry pair = (Map.Entry)it.next();
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry) it.next();
 
                 int prntSrc = (Integer) pair.getKey();
                 InetSocketAddress prntDest = (InetSocketAddress) pair.getValue();
@@ -120,10 +109,7 @@ public class Controller implements Runnable {
 
             }
 
-        }
-
-        else
-        {
+        } else {
             System.out.println("Invalid input!");
             appConsole.appendText("\nInvalid input!");
         }
@@ -134,43 +120,40 @@ public class Controller implements Runnable {
 
         updateTable();
         if (sourcePort != 0) {
+
             new Thread(this).start();
         }
 
     }
 
-    public void updateTable()
-    {
-        if (!isTableMade){
+    public void updateTable() {
+        if (!isTableMade) {
             PairTable.setEditable(true);
             TableColumn SourcePortNum = new TableColumn("Src Port");
-            SourcePortNum.setCellValueFactory(new PropertyValueFactory<ForwardPair,Integer>("srcPort"));
+            SourcePortNum.setCellValueFactory(new PropertyValueFactory<ForwardPair, Integer>("srcPort"));
 
             TableColumn DestHostname = new TableColumn("Dest IP");
-            DestHostname.setCellValueFactory(new PropertyValueFactory<ForwardPair,String>("destIP"));
+            DestHostname.setCellValueFactory(new PropertyValueFactory<ForwardPair, String>("destIP"));
             TableColumn DestPortNum = new TableColumn("Dest Port");
-            DestPortNum.setCellValueFactory(new PropertyValueFactory<ForwardPair,Integer>("destPort"));
+            DestPortNum.setCellValueFactory(new PropertyValueFactory<ForwardPair, Integer>("destPort"));
 
 
             PairTable.setItems(TableData);
-            PairTable.getColumns().addAll(SourcePortNum,DestHostname,DestPortNum);
+            PairTable.getColumns().addAll(SourcePortNum, DestHostname, DestPortNum);
             isTableMade = true;
-        }
-
-        else
+        } else
             PairTable.setItems(TableData);
 
     }
 
-    public void StartButtonClicked()
-    {
+    public void StartButtonClicked() {
         appConsole.appendText("\n Start button clicked!");
 
     }
 
     public void run() {
         try {
-            ConnectionTracker tracker = new ConnectionTracker();
+
             Helper helper = new Helper();
 
             //Create A ServerSocketChannel To Listen on the given port
@@ -182,7 +165,8 @@ public class Controller implements Runnable {
             Selector selector = helper.createSelector();
             //register ServerSocketChannel with this selector with OP_ACCPET
             boolean registerSelectorOK = helper.registerSelector(servSockChannel, selector, 3);
-            System.out.println("Listening on PORT " + sourcePort);
+
+            appConsole.appendText("\nListening on PORT " + sourcePort);
             ConnectionTracker connectionTracker = new ConnectionTracker();
 
             while (true) {
@@ -198,43 +182,55 @@ public class Controller implements Runnable {
                 Iterator<SelectionKey> it = keys.iterator();
                 while (it.hasNext()) {
                     SelectionKey key = it.next();
+                    it.remove();
+
                     //If There are new Connections
                     if ((key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT) {
-                        System.out.println("Accepting New Connection...");
+                        //appConsole.appendText("\nAccepting New Connection...");
 
                         SocketChannel sourceSocketChannel = servSockChannel.accept();
+                        //appConsole.appendText("\nConnection Established with: " + sourceSocketChannel.getRemoteAddress());
                         //Set this socketChannel to Non Blocking
                         helper.setSocketChannelNonBlocking(sourceSocketChannel);
                         //Register this socket For OP_READ
                         helper.registerSocketChannel(sourceSocketChannel, selector, 1);
                         //Make the forward Socket
                         SocketChannel newSocChannel = helper.makeForwardingSocket(sourceSocketChannel, this.destinationPort, this.destinationIP, selector);
+                        appConsole.appendText("\nConnection Established with Source: " + sourceSocketChannel.getRemoteAddress().toString()+ " Destination: " + newSocChannel.getRemoteAddress().toString());
+
+
                         //Add the Forward Socket and the client socket to the MAP
+
                         connectionTracker.populateSocketTracker(sourceSocketChannel, newSocChannel);
-                        System.out.println("Connection Established with Server...");
+                        //System.out.println("Connection Established with Server...");
                     } else if ((key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ) {
                         SocketChannel receiveChannel = null;
 
                         try {
                             //Process the incoming data
                             receiveChannel = (SocketChannel) key.channel();
-                            SocketChannel forwardChannel = tracker.getForwardingSocketFromSocketTracker(receiveChannel);
-                            boolean processDataOK = helper.processData(receiveChannel,forwardChannel);
-                            if(!processDataOK)
-                            {
+                            //  System.out.println(receiveChannel.toString());
+                            SocketChannel forwardChannel = connectionTracker.getForwardingSocketFromSocketTracker(receiveChannel);
+
+                            //System.out.println("Printttnnnnnnnnnnnnnnnnnnnnnnnn........................" + forwardChannel.toString());
+                            boolean processDataOK = helper.processData(receiveChannel, forwardChannel);
+                            if (!processDataOK) {
                                 key.cancel();
-                                try{
+                                try {
                                     receiveChannel.close();
-                                }catch (IOException io)
-                                {
+                                    forwardChannel.close();
+                                    System.out.println("Closed Socket ..");
+                                } catch (IOException io) {
                                     System.out.println("Error closing socket...");
                                     io.printStackTrace();
                                 }
                             }
                         } catch (Exception io) {
-
+                            System.out.println("Error Processing Data ..");
+                            io.printStackTrace();
                         }
                     }
+
                 }
                 keys.clear();
             }
